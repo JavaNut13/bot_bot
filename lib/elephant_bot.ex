@@ -26,7 +26,7 @@ defmodule ElephantBot do
   @doc "Subscribe to a redis channel that will notify when to send an update"
   def subscribe(chan_name) do
     {:ok, client_sub} = Exredis.Sub.start_link
-    Exredis.Sub.subscribe client_sub, "foo", fn
+    Exredis.Sub.subscribe client_sub, chan_name, fn
       {:message, ^chan_name, _, _} ->
         spawn(fn -> post get_message end)
       msg -> IO.inspect msg
