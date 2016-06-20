@@ -29,7 +29,8 @@ defmodule ElephantBot.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.8.0"},
-      {:poison, "~> 0.2"}
+      {:poison, "~> 2.0"},
+      {:exredis, ">= 0.2.4"}
     ]
   end
 end
