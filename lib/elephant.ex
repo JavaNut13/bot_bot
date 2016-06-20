@@ -1,9 +1,9 @@
-defmodule ElephantBot do
-  @url Application.get_env(:elephant_bot, :url)
+defmodule BotBot.Elephant do
+  @url Application.get_env(:bot_bot, :url)
 
-  @endpoint Application.get_env(:elephant_bot, :endpoint)
-  @project Application.get_env(:elephant_bot, :project_id)
-  @token Application.get_env(:elephant_bot, :gitlab_token)
+  @endpoint Application.get_env(:bot_bot, :endpoint)
+  @project Application.get_env(:bot_bot, :project_id)
+  @token Application.get_env(:bot_bot, :gitlab_token)
   
   @gitlab_url "#{@endpoint}/api/v3/projects/#{@project}/merge_requests?private_token=#{@token}&state=opened"
 
@@ -51,11 +51,6 @@ defmodule ElephantBot do
     body = %{text: message}
     |> Poison.encode!
     HTTPoison.post! @url, body
-  end
-
-  defp current_hour do
-    {_, {hour, _, _}} = :calendar.local_time()
-    hour
   end
 
   defp link_for(mr_number) do

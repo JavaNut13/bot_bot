@@ -37,15 +37,16 @@ config :exredis,
   reconnect: :no_reconnect,
   max_queue: :infinity
 
-config :elephant_bot,
+config :bot_bot,
   url: "https://hooks.slack.com/services/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",
   team: "T0NCJC5M1",
   endpoint: "https://eng-git.canterbury.ac.nz",
   gitlab_token: "p-ciC9-ZrwLkMurHr3P8",
-  project_id: "1205"
+  project_id: "1205",
+  bot_token: "xoxb-27661867701-Z7yelwbR5iSI4eYSYXcseDEx"
 
 config :quantum,
   cron: [
-    "03 17 * * *": {ElephantBot, :post_message}
+    "03 17 * * *": {BotBot.Elephant, :post_message}
   ],
   timezone: :local
