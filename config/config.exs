@@ -43,3 +43,9 @@ config :elephant_bot,
   endpoint: "https://eng-git.canterbury.ac.nz",
   gitlab_token: "p-ciC9-ZrwLkMurHr3P8",
   project_id: "1205"
+
+config :quantum,
+  cron: [
+    "03 17 * * *": {ElephantBot, :post_message}
+  ],
+  timezone: :local

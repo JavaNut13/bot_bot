@@ -14,7 +14,9 @@ defmodule ElephantBot.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [
+      applications: [:logger, :quantum, :httpoison]
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -30,7 +32,8 @@ defmodule ElephantBot.Mixfile do
     [
       {:httpoison, "~> 0.8.0"},
       {:poison, "~> 2.0"},
-      {:exredis, ">= 0.2.4"}
+      {:exredis, ">= 0.2.4"},
+      {:quantum, ">= 1.7.1"}
     ]
   end
 end

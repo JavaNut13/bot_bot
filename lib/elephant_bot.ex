@@ -7,22 +7,6 @@ defmodule ElephantBot do
   
   @gitlab_url "#{@endpoint}/api/v3/projects/#{@project}/merge_requests?private_token=#{@token}&state=opened"
 
-  def start do
-    HTTPoison.start
-  end
-
-  @doc "Wait for a certain hour (24 hour) and then send a message to the waiting process to post the update"
-  def wait_and_send_at(time) do
-    if current_hour == time do
-      spawn(fn ->
-        post get_message
-      end)
-      :timer.sleep 1000 * 60 * 60 # So we don't post twice in one hour
-    end
-    :timer.sleep 1000 * 60 * 10 # Wait for 10 minutes
-    wait_and_send_at time
-  end
-
   @doc "Subscribe to a redis channel that will notify when to send an update"
   def subscribe(chan_name) do
     {:ok, client_sub} = Exredis.Sub.start_link
@@ -31,6 +15,11 @@ defmodule ElephantBot do
         spawn(fn -> post get_message end)
       msg -> IO.inspect msg
     end
+  end
+
+  @doc "Post a message. Used by quantum"
+  def post_message do
+    post get_message
   end
 
   @doc "Create a message from the open merge requests"
