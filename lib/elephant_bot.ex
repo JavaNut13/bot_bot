@@ -9,12 +9,10 @@ defmodule ElephantBot do
 
   def start do
     HTTPoison.start
-
-    spawn &wait_and_send/0
   end
 
   @doc "Wait for a certain hour (24 hour) and then send a message to the waiting process to post the update"
-  def wait_and_send_at(sender, time) do
+  def wait_and_send_at(time) do
     if current_hour == time do
       spawn(fn ->
         post get_message
@@ -22,7 +20,17 @@ defmodule ElephantBot do
       :timer.sleep 1000 * 60 * 60 # So we don't post twice in one hour
     end
     :timer.sleep 1000 * 60 * 10 # Wait for 10 minutes
-    wait_and_send_at sender, time
+    wait_and_send_at time
+  end
+
+  @doc "Subscribe to a redis channel that will notify when to send an update"
+  def subscribe(chan_name) do
+    {:ok, client_sub} = Exredis.Sub.start_link
+    Exredis.Sub.subscribe client_sub, "foo", fn
+      {:message, ^chan_name, _, _} ->
+        spawn(fn -> post get_message end)
+      msg -> IO.inspect msg
+    end
   end
 
   @doc "Create a message from the open merge requests"
@@ -30,19 +38,27 @@ defmodule ElephantBot do
     redis = Store.get_client
     HTTPoison.get!(@gitlab_url).body
     |> Poison.decode!
-    |> Stream.map(fn mr ->
+    |> Stream.filter(fn mr ->
+      !mr["work_in_progress"]
+    end)
+    |> Stream.map(fn %{"iid" => mr} ->
       case Store.get_users(redis, mr) do
         nil -> "No pair for #{link_for mr}"
         users ->
-          usr_str = Enum.join users, ", "
+          usr_str = join_users users
           "#{usr_str} need to review #{link_for mr}"
       end
     end)
     |> Enum.join("\n")
   end
 
-  @doc "Send a message using the webhook"
-  def post(message) do
+  defp join_users(users) do
+    users
+    |> Stream.map(fn user -> "@#{user}" end)
+    |> Enum.join(", ")
+  end
+
+  defp post(message) do
     body = %{text: message}
     |> Poison.encode!
     HTTPoison.post! @url, body
