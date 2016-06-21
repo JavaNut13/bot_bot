@@ -53,7 +53,8 @@ defmodule BotBot.Elephant do
     HTTPoison.post! @url, body
   end
 
-  defp link_for(mr_number) do
+  @doc "Get a slack-formatted link for a MR number"
+  def link_for(mr_number) do
     "<#{url_for mr_number}|MR #{mr_number}>"
   end
 
