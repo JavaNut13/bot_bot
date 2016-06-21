@@ -29,17 +29,8 @@ use Mix.Config
 #
 #     import_config "#{Mix.env}.exs"
 
-config :exredis,
-  host: "127.0.0.1",
-  port: 6379,
-  password: "",
-  db: 0,
-  reconnect: :no_reconnect,
-  max_queue: :infinity
-
 config :bot_bot,
   url: "https://hooks.slack.com/services/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",
-  team: "T0NCJC5M1",
   endpoint: "https://eng-git.canterbury.ac.nz",
   gitlab_token: "p-ciC9-ZrwLkMurHr3P8",
   project_id: "1205",

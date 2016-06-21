@@ -3,6 +3,7 @@ defmodule BotBot.Rtm do
   use Slack
 
   def start(_mode, []) do
+    BotBot.Store.new :user_store
     start_link @token, []
   end
 
@@ -12,13 +13,25 @@ defmodule BotBot.Rtm do
   end
 
   def handle_message(msg = %{type: "message"}, slack, state) do
-    IO.inspect msg
-    IO.inspect slack
     cond do
+      msg.user == slack.me.id ->
+        nil
+      Regex.match?(~r/pair,? please/i, msg.text)
+      and
+      Regex.match?(~r/mr[\- ]?\d+/i, msg.text) ->
+        [_, mr_number | _ ] = Regex.run ~r/mr[\- ]?(\d+)/i, msg.text
+        pair = pair_users(slack.users[msg.user], slack.users)
+        message = Enum.join(pair, ", ")
+                    <>
+                  merge_request_message(mr_number)
+        send_message message, msg.channel, slack
+
+        Process.whereis(:user_store)
+        |> BotBot.Store.set_users(mr_number, pair)
       Regex.match? ~r/pair,? please/i, msg.text ->
-        send_message pair_message(msg.user, slack.users), msg.channel, slack
+        send_message pair_message(slack.users[msg.user], slack.users), msg.channel, slack
       Regex.match? ~r/mr[\- ]?\d+/i, msg.text ->
-        [mr_number | _ ] = Regex.run ~r/(\d+)/i, msg.text
+        [_, mr_number | _ ] = Regex.run ~r/mr[\- ]?(\d+)/i, msg.text
         send_message merge_request_message(mr_number), msg.channel, slack
       Regex.match? ~r/what'?s open/i, msg.text ->
         BotBot.Elephant.post_message
@@ -34,28 +47,32 @@ defmodule BotBot.Rtm do
   end
 
   defp pair_message(user, users) do
+    pair_users(user, users)
+    |> Enum.join(", ")
+  end
+
+  defp pair_users(%{id: user_id}, users) do
     # Remove the keys, we only want the values
     Stream.map(users, fn {_, usr} -> usr end)
     # Get rid of the current user
     |> Stream.filter(fn
-       %{"id" => ^user.id} -> false
+       %{id: ^user_id} -> false
        _ -> true
     end)
     # Get rid of users that we don't care about
-    |> Stream.filter(&ignored_user?/1)
+    |> Stream.filter(&real_user?/1)
     # Get their names with @ infront of them
-    |> Stream.map(fn %{"name" => name} -> "@#{name}" end)
+    |> Stream.map(fn %{name: name} -> "@" <> name end)
     # Only get two users
     |> Enum.take_random(2)
-    |> Enum.join(", ")
   end
 
-  defp ignored_user?(user) do
+  defp real_user?(user) do
     case user do
-      %{"is_bot" => true} -> true
-      %{"profile" => %{"first_name" => "slackbot"}} -> true
-      %{"deleted" => true} -> true
-      _ -> false
+      %{is_bot: true} -> false
+      %{profile: %{first_name: "slackbot"}} -> false
+      %{deleted: true} -> false
+      _ -> true
     end
   end
 

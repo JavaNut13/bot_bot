@@ -1,4 +1,5 @@
 defmodule BotBot.Elephant do
+  alias BotBot.Store
   @url Application.get_env(:bot_bot, :url)
 
   @endpoint Application.get_env(:bot_bot, :endpoint)
@@ -7,16 +8,6 @@ defmodule BotBot.Elephant do
   
   @gitlab_url "#{@endpoint}/api/v3/projects/#{@project}/merge_requests?private_token=#{@token}&state=opened"
 
-  @doc "Subscribe to a redis channel that will notify when to send an update"
-  def subscribe(chan_name) do
-    {:ok, client_sub} = Exredis.Sub.start_link
-    Exredis.Sub.subscribe client_sub, chan_name, fn
-      {:message, ^chan_name, _, _} ->
-        spawn(fn -> post get_message end)
-      msg -> IO.inspect msg
-    end
-  end
-
   @doc "Post a message. Used by quantum"
   def post_message do
     post get_message
@@ -24,14 +15,15 @@ defmodule BotBot.Elephant do
 
   @doc "Create a message from the open merge requests"
   def get_message do
-    redis = Store.get_client
+    # TODO this isn't going to work :(
+    store = Process.whereis :user_store
     HTTPoison.get!(@gitlab_url).body
     |> Poison.decode!
     |> Stream.filter(fn mr ->
       !mr["work_in_progress"]
     end)
     |> Stream.map(fn %{"iid" => mr} ->
-      case Store.get_users(redis, mr) do
+      case Store.get_users(store, mr) do
         nil -> "No pair for #{link_for mr}"
         users ->
           usr_str = join_users users
