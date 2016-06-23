@@ -34,10 +34,12 @@ config :bot_bot,
   endpoint: "https://eng-git.canterbury.ac.nz",
   gitlab_token: "p-ciC9-ZrwLkMurHr3P8",
   project_id: "1205",
-  bot_token: "xoxb-27661867701-Z7yelwbR5iSI4eYSYXcseDEx"
+  bot_token: "xoxb-27661867701-Z7yelwbR5iSI4eYSYXcseDEx",
+  save_location: "./store.save"
 
 config :quantum,
   cron: [
-    "03 17 * * *": {BotBot.Elephant, :post_message}
+    "03 17 * * *": {BotBot.Elephant, :post_message},
+    "*/10 * * * *": {BotBot.Store, :persist}
   ],
   timezone: :local
