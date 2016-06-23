@@ -15,7 +15,7 @@ defmodule BotBot.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      mod: {BotBot.Rtm, []},
+      mod: {BotBot.Supervisor, []},
       applications: [
         :logger,
         :quantum,

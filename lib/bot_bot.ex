@@ -1,5 +1,4 @@
 defmodule BotBot.Rtm do
-  @token Application.get_env(:bot_bot, :bot_token)
   @mr_regex ~r/mr[\- ]?(\d+)/i
   @pair_regex ~r/pair,? please/i
   @review_regex ~r/review/i
@@ -7,11 +6,6 @@ defmodule BotBot.Rtm do
   @user_regex ~r/<@([\w\d]+)>|@[\w\d]+/i
 
   use Slack
-
-  def start(_mode, []) do
-    BotBot.Store.start
-    start_link @token, []
-  end
 
   def handle_connect(slack, state) do
     IO.puts "Connected as #{slack.me.name}"

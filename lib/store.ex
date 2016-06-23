@@ -1,6 +1,7 @@
 defmodule BotBot.Store do
 
-  def start do
+  def start_link do
+    IO.puts "Starting store"
     Agent.start_link fn ->
       %{}
     end, name: __MODULE__
