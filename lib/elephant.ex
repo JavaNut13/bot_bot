@@ -10,39 +10,54 @@ defmodule BotBot.Elephant do
 
   @doc "Post a message. Used by quantum"
   def post_message do
-    post get_message
+    attachments = HTTPoison.get!(@gitlab_url).body
+    |> Poison.decode!
+    |> Enum.map(fn mr ->
+      mr_to_attachment mr
+    end)
+    body = %{
+      attachments: attachments
+    }
+    |> Poison.encode!
+    HTTPoison.post! @url, body
   end
 
-  @doc "Create a message from the open merge requests"
-  def get_message do
-    # TODO this isn't going to work :(
-    store = Process.whereis :user_store
-    HTTPoison.get!(@gitlab_url).body
-    |> Poison.decode!
-    |> Stream.filter(fn mr ->
-      !mr["work_in_progress"]
-    end)
-    |> Stream.map(fn %{"iid" => mr} ->
-      case Store.get_users(store, mr) do
-        nil -> "No pair for #{link_for mr}"
-        users ->
-          usr_str = join_users users
-          "#{usr_str} need to review #{link_for mr}"
-      end
-    end)
-    |> Enum.join("\n")
+  defp mr_to_attachment(mr) do
+    text = text_for mr
+    %{
+      fallback: text,
+      color: color(mr),
+      text: text
+    }
+  end
+
+  defp color(mr) do
+    net_votes = mr["upvotes"] - mr["downvotes"]
+    cond do
+      mr["work_in_progress"] ->
+       "#5E5E5E"
+      net_votes >= 2 ->
+        "green"
+      net_votes == 1 ->
+        "#56BADB"
+      true ->
+        "#E8773A"
+    end
+  end
+
+  defp text_for(%{"iid" => mr_number}) do
+    case Store.get_users(mr_number) do
+      nil ->
+        "No pair for #{link_for mr_number}"
+      users ->
+        "#{join_users(users)} need to review #{link_for mr_number}"
+    end
   end
 
   defp join_users(users) do
     users
     |> Stream.map(fn user -> "@#{user}" end)
     |> Enum.join(", ")
-  end
-
-  defp post(message) do
-    body = %{text: message}
-    |> Poison.encode!
-    HTTPoison.post! @url, body
   end
 
   @doc "Get a slack-formatted link for a MR number"

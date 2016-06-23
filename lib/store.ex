@@ -1,14 +1,14 @@
 defmodule BotBot.Store do
 
-  def new(name) do
+  def start do
     Agent.start_link fn ->
       %{}
-    end, name: name
+    end, name: __MODULE__
   end
 
-  def get_users(agent, mr_number) do
+  def get_users(mr_number) do
     mr_number = to_i(mr_number)
-    Agent.get agent, fn
+    Agent.get __MODULE__, fn
       %{^mr_number => users} ->
         users
       _ ->
@@ -16,9 +16,18 @@ defmodule BotBot.Store do
     end
   end
 
-  def set_users(agent, mr_number, users) do
-    Agent.update agent, fn map ->
+  def set_users(mr_number, users) do
+    Agent.update __MODULE__, fn map ->
       Map.put map, to_i(mr_number), clean(users)
+    end
+  end
+
+  def add_users(mr_number, users) do
+    cleaned = clean users
+    Agent.update __MODULE__, fn map ->
+      Map.update map, to_i(mr_number), cleaned, fn old_users ->
+        cleaned ++ old_users
+      end
     end
   end
 
@@ -32,7 +41,7 @@ defmodule BotBot.Store do
   end
 
   defp clean(users) do
-    Stream.map(users, fn
+    Enum.map(users, fn
      "@" <> name -> name
       name -> name
     end)
