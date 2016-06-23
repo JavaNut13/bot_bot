@@ -10,6 +10,7 @@ defmodule BotBot.Rtm do
 
   def handle_connect(slack, state) do
     IO.puts "Connected as #{slack.me.name}"
+
     {:ok, state}
   end
 
@@ -20,12 +21,17 @@ defmodule BotBot.Rtm do
         channel_id = lookup_channel_id("#" <> channel, slack)
         send_message text, channel_id, slack
 
-      ~r/(hey|hi) bot( ?bot)?/ ->
+      ~r/(hey|hi) bot( ?bot)?/i ->
         text = "Hey #{slack.users[msg.user].profile.first_name}"
         send_message text, msg.channel, slack
 
-      ~r/thanks bot( ?bot)?/ ->
+      ~r/thanks bot( ?bot)?/i ->
         text = "You're welcome #{slack.users[msg.user].profile.first_name}"
+        send_message text, msg.channel, slack
+
+      ~r/fault tolerant/i and ~r/bot( ?bot)/i ->
+        text = "I am very fault tolerant. "
+        <> "I am running on #{length :erlang.processes} processes!"
         send_message text, msg.channel, slack
 
       @pair_regex and @mr_regex ->
@@ -77,7 +83,7 @@ defmodule BotBot.Rtm do
         respond_to msg, slack
       rescue
         error ->
-          send_message "Oh poop: #{inspect error}", msg.channel, slack
+          send_message "Oh poop:\n```#{inspect error}```", msg.channel, slack
       end
     end
     {:ok, state}
