@@ -18,10 +18,8 @@ defmodule BotBot.Rtm do
     {:ok, state}
   end
 
-  def handle_message(msg = %{type: "message"}, slack, state) do
+  defp respond_to(msg, slack) do
     cond do
-      msg.user == slack.me.id ->
-        nil
       Regex.match?(@pair_regex, msg.text)
       and
       Regex.match?(@mr_regex, msg.text) ->
@@ -61,7 +59,17 @@ defmodule BotBot.Rtm do
       true ->
         nil
     end
+  end
 
+  def handle_message(msg = %{type: "message"}, slack, state) do
+    unless msg.user == slack.me.id do
+      try do
+        respond_to msg, slack
+      rescue
+        error ->
+          send_message "Oh poop: #{inspect error}", msg.channel, slack
+      end
+    end
     {:ok, state}
   end
 
