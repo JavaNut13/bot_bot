@@ -15,6 +15,19 @@ defmodule BotBot.Rtm do
 
   defp respond_to(msg, slack) do
     match msg.text do
+      ~r/say in/i ->
+        [_, channel, text] = Regex.run(~r/^say in (.*?): ?(.*)$/i, msg.text)
+        channel_id = lookup_channel_id("#" <> channel, slack)
+        send_message text, channel_id, slack
+
+      ~r/(hey|hi) bot( ?bot)?/ ->
+        text = "Hey #{slack.users[msg.user].profile.first_name}"
+        send_message text, msg.channel, slack
+
+      ~r/thanks bot( ?bot)?/ ->
+        text = "You're welcome #{slack.users[msg.user].profile.first_name}"
+        send_message text, msg.channel, slack
+
       @pair_regex and @mr_regex ->
         [_, mr_number | _ ] = Regex.run @mr_regex, msg.text
         pair = pair_users(slack.users[msg.user], slack.users)
