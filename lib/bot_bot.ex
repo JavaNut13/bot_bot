@@ -77,6 +77,10 @@ defmodule BotBot.Rtm do
     end
   end
 
+  def handle_message(%{type: "message", subtype: "bot_message"}, _, state) do
+    {:ok, state}
+  end
+
   def handle_message(msg = %{type: "message"}, slack, state) do
     unless msg.user == slack.me.id do
       try do

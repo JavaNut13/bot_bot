@@ -40,6 +40,7 @@ config :bot_bot,
 config :quantum,
   cron: [
     "03 17 * * *": {BotBot.Elephant, :post_message},
-    "*/10 * * * *": {BotBot.Store, :persist}
+    "*/10 * * * *": {BotBot.Store, :persist},
+    "4 9 * * */3": {BotBot.Timesheet, :post_message}
   ],
   timezone: :local

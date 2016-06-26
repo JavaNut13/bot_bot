@@ -15,11 +15,17 @@ defmodule BotBot.Elephant do
     |> Enum.map(fn mr ->
       mr_to_attachment mr
     end)
-    body = %{
-      attachments: attachments
-    }
-    |> Poison.encode!
+    post %{attachments: attachments}
+  end
+
+  @doc "Post a message to #general as Elixphant"
+  def post(data = %{}) do
+    body = Poison.encode! data
     HTTPoison.post! @url, body
+  end
+
+  def post(message) do
+    post(%{text: message})
   end
 
   defp mr_to_attachment(mr) do
