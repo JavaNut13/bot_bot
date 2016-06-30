@@ -27,9 +27,9 @@ defmodule BotBot.Timesheet do
     |> Enum.join("\n")
   end
 
-  def get_data_for(user_id) do
+  defp get_data_for(user_id) do
     headers = %{
-      "Cookie" => "JSESSIONID=EC622D15FC1602C326BBDC82A6F4B072",
+      "Cookie" => "JSESSIONID=CEA647B250A98F62511F912A89D0C88B; SPRING_SECURITY_REMEMBER_ME_COOKIE=d2hyMTg6MTQ2ODEzNjA0MDM1MTphZDZhMmI2MjM3MmE3ZTUwMTNjYmZmZTI0NzY2MjQyMg",
       "Content-Type" => "application/x-www-form-urlencoded"
     }
     data = "backlogSelectionType=0&productIds=1&projectIds=4&iterationIds=26&interval=NO_INTERVAL&startDate=&endDate=&userIds=#{user_id}"
