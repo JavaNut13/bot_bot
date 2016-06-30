@@ -82,7 +82,7 @@ defmodule BotBot.Rtm do
   end
 
   def handle_message(msg = %{type: "message"}, slack, state) do
-    unless msg.user == slack.me.id do
+    if Map.has_key?(msg, :user) && msg.user != slack.me.id do
       try do
         respond_to msg, slack
       rescue
@@ -128,6 +128,6 @@ defmodule BotBot.Rtm do
   end
 
   defp merge_request_message(number) do
-    BotBot.Elephant.link_for number
+    "https://eng-git.canterbury.ac.nz/SENG302-2016/team-1/merge_requests/#{number}"
   end
 end
