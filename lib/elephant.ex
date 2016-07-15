@@ -51,13 +51,17 @@ defmodule BotBot.Elephant do
     end
   end
 
-  defp text_for(%{"iid" => mr_number}) do
+  defp text_for(mr = %{"iid" => mr_number}) do
     case Store.get_users(mr_number) do
       nil ->
-        "No pair for #{link_for mr_number}"
+        "No pair for #{link_for mr_number}: #{description_for mr}"
       users ->
-        "#{join_users(users)} need to review #{link_for mr_number}"
+        "#{join_users(users)} need to review #{link_for mr_number}: #{description_for mr}"
     end
+  end
+
+  defp description_for(mr) do
+    mr["title"] <> " by @" <> mr["author"]["username"]
   end
 
   defp join_users(users) do
