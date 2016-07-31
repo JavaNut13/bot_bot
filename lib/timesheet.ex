@@ -4,7 +4,6 @@ defmodule BotBot.Timesheet do
   @login_url "http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/j_spring_security_check"
 
   @ids_and_usernames [
-    {159, "bmosky"},
     {105, "jab297"},
     {121, "javanut13"},
     {140, "jonathon.garratt"},

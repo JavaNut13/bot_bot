@@ -10,7 +10,6 @@ defmodule BotBot.Rtm do
 
   def handle_connect(slack, state) do
     IO.puts "Connected as #{slack.me.name}"
-
     {:ok, state}
   end
 
@@ -120,6 +119,7 @@ defmodule BotBot.Rtm do
 
   defp real_user?(user) do
     case user do
+      %{name: "bmosky"} -> false
       %{is_bot: true} -> false
       %{profile: %{first_name: "slackbot"}} -> false
       %{deleted: true} -> false
