@@ -4,7 +4,7 @@ defmodule BotBot.Timesheet do
   @login_url "http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/j_spring_security_check"
 
   @ids_and_usernames [
-    {105, "jab297"},
+    {105, "jamesb"},
     {121, "javanut13"},
     {140, "jonathon.garratt"},
     {125, "leachy"},
@@ -12,9 +12,18 @@ defmodule BotBot.Timesheet do
     {149, "sfc50"}
   ]
 
+  @emojis [
+    ":crown:",
+    ":sparkles:",
+    ":laughing:",
+    ":neutral_face:",
+    ":fearful:",
+    ":poop:"
+  ]
+
   def post_message do
     times = get_all_times <>
-    "\n<#{@logging_url}|Log time>"
+    "\n:alarm_clock: <#{@logging_url}|Log time>"
     BotBot.Elephant.post times
   end
 
@@ -22,7 +31,12 @@ defmodule BotBot.Timesheet do
     @ids_and_usernames
     |> Stream.map(fn {id, username} ->
       hours = get_data_for(id)
-      "@#{username}: #{hours}"
+      {username, hours}
+    end)
+    |> Enum.sort(fn {_, a}, {_, b} -> a > b end)
+    |> Stream.zip(@emojis)
+    |> Stream.map(fn {{username, {hour, min}}, emoji} ->
+      "#{emoji} @#{username}: `#{hour}:#{min}`"
     end)
     |> Enum.join("\n")
   end
@@ -37,9 +51,16 @@ defmodule BotBot.Timesheet do
     |> Floki.find(".timesheet-header-ul .hoursum")
     
     case returned do
-      [] -> "No time logged"
-      [{"li", _, [time]} | _] -> time
+      [] -> {0, 0}
+      [{"li", _, [time]} | _] -> parse_time time
     end
+  end
+
+  def parse_time(time_str) do
+    [_, h_str, m_str] = Regex.run ~r/(\d+)h (\d+)min/, time_str
+    {hours, _} = Integer.parse h_str
+    {minutes, _} = Integer.parse m_str
+    {hours, minutes}
   end
 
   def get_cookies do
