@@ -46,7 +46,7 @@ defmodule BotBot.Timesheet do
       "Cookie" => get_cookies,
       "Content-Type" => "application/x-www-form-urlencoded"
     }
-    data = "backlogSelectionType=0&productIds=1&projectIds=4&iterationIds=28&interval=NO_INTERVAL&startDate=&endDate=&userIds=#{user_id}"
+    data = "backlogSelectionType=0&productIds=1&projectIds=4&iterationIds=31&interval=NO_INTERVAL&startDate=&endDate=&userIds=#{user_id}"
     returned = HTTPoison.post!(@elephant_timesheet, data, headers).body
     |> Floki.find(".timesheet-header-ul .hoursum")
     
