@@ -3,6 +3,7 @@ defmodule BotBot.Rtm do
   @pair_regex ~r/pair,? please/i
   @review_regex ~r/review/i
   @open_regex ~r/what.?s open/
+  @logging_regex ~r/is will logging/
   @user_regex ~r/<@([\w\d]+)>|@[\w\d]+/i
 
   use Slack
@@ -32,6 +33,10 @@ defmodule BotBot.Rtm do
         text = "I am very fault tolerant. "
         <> "I am running on #{length :erlang.processes} processes!"
         send_message text, msg.channel, slack
+
+      @logging_regex ->
+        send_message "Probably not, but we'll see...", msg.channel, slack
+        BotBot.Timesheet.post_message
 
       @pair_regex and @mr_regex ->
         [_, mr_number | _ ] = Regex.run @mr_regex, msg.text
