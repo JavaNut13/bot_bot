@@ -57,10 +57,13 @@ defmodule BotBot.Timesheet do
   end
 
   def parse_time(time_str) do
-    [_, h_str, m_str] = Regex.run ~r/(\d+)h (\d+)min/, time_str
-    {hours, _} = Integer.parse h_str
-    {minutes, _} = Integer.parse m_str
-    {hours, minutes}
+    case Regex.run ~r/(\d+)h (\d+)min/, time_str do
+      [_, h_str, m_str] ->
+        {hours, _} = Integer.parse h_str
+        {minutes, _} = Integer.parse m_str
+        {hours, minutes}
+      _ -> {0, 0}
+    end
   end
 
   def get_cookies do
