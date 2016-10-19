@@ -1,20 +1,7 @@
-# ElephantBot
+# Bot Bot
 
-**TODO: Add description**
+_Slackbot for maximising university group project productivity_
 
-## Installation
+Created to aid group 1 (aka Swagoverflow) in SENG302 2016. The first version of this bot was written in Ruby using [realtime-slackbot](https://github.com/JavaNut13/realtime-slackbot) but moved to Elixir to handle the daily reminders, etc.
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
-
-  1. Add elephant_bot to your list of dependencies in `mix.exs`:
-
-        def deps do
-          [{:elephant_bot, "~> 0.0.1"}]
-        end
-
-  2. Ensure elephant_bot is started before your application:
-
-        def application do
-          [applications: [:elephant_bot]]
-        end
-
+All URLs and keys in config files should be invalidated by now. I will add a sample config file later (maybe).
